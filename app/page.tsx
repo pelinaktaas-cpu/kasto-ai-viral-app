@@ -7,7 +7,9 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'generating' | 'done' | 'error'>('idle');
   const [results, setResults] = useState<string[]>([]);
-  const processedCount = '14,500+'; 
+  
+  // Global Sosyal Kanıt: Rakamı daha kurumsal bir formatta gösteriyoruz
+  const processedCount = '15K+'; 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -35,6 +37,7 @@ export default function Home() {
     try {
         const imageBase64 = await fileToBase64(file);
 
+        // Kullanıcıya sunucu ile iletişim kurulduğunu hissettirmek için duruma geçiyoruz
         setStatus('generating');
 
         const response = await fetch('/api/generate', {
@@ -47,7 +50,7 @@ export default function Home() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to generate images.');
+            throw new Error(errorData.error || 'Generation Failed.');
         }
 
         const data = await response.json();
@@ -66,100 +69,124 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-4 flex flex-col items-center justify-center bg-[#0d0d0d]">
+    <main className="min-h-screen p-4 flex flex-col items-center justify-center bg-[#0d0d0d] text-white font-sans selection:bg-purple-500/30">
       
-      <div className="text-center mb-8">
-        <div className="text-sm font-light text-gray-500 mb-1 tracking-widest uppercase">
-          {processedCount} photos processed in 24 hours | Beta Slots Tüketiyor
+      {/* BAŞLIK ALANI: Minimalist ve Otoriter */}
+      <div className="text-center mb-10 space-y-4">
+        <div className="inline-block px-3 py-1 border border-gray-800 rounded-full bg-gray-900/50 backdrop-blur-sm">
+            <span className="text-xs font-medium text-gray-400 tracking-widest uppercase">
+            {processedCount} Portraits Generated • Server Status: Online
+            </span>
         </div>
-        <h1 className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400 mb-2">
+        
+        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500">
           KASTO.AI
         </h1>
-        <p className="text-xl font-light text-gray-400">
-          The Premier AI Photoshoot Generator.
+        <p className="text-xl md:text-2xl font-light text-gray-400 max-w-2xl mx-auto tracking-tight">
+          The World's Most Advanced Identity Engine.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-lg bg-gray-900 p-8 rounded-2xl shadow-[0_0_60px_rgba(100,0,255,0.1)] border border-gray-700">
+      {/* FORM ALANI: Yüksek Teknoloji Hissi */}
+      <form onSubmit={handleSubmit} className="w-full max-w-xl bg-[#111] p-1 rounded-3xl shadow-2xl border border-gray-800 overflow-hidden relative group">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
         
-        {status === 'error' && (
-             <div className="text-center p-4 bg-red-800/30 text-red-400 rounded-lg mb-4">
-               Generation failed. Please ensure the uploaded photo is a clear, front-facing selfie.
-             </div>
-        )}
-        
-        {(status === 'idle' || status === 'error' ) && (
-          <>
-            <label htmlFor="file-upload" className="block text-center cursor-pointer p-16 border-4 border-dashed border-gray-600 rounded-xl transition hover:border-purple-500 mb-6">
-              <span className="text-lg text-gray-400 font-medium">
-                Drag or Tap to Upload Your High-Res Selfie (JPG/PNG)
-              </span>
-              <input 
-                id="file-upload" 
-                type="file" 
-                accept="image/jpeg,image/png" 
-                onChange={handleFileChange} 
-                className="hidden" 
-              />
-            </label>
-            {file && (
-              <div className="text-center mb-4 text-green-400">
-                Ready to transform: {file.name}
-              </div>
+        <div className="bg-[#0a0a0a] rounded-[20px] p-8 relative z-10">
+            {/* Hata Mesajı */}
+            {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center justify-center text-red-400 text-sm font-medium">
+                Generation failed. Please upload a clear, front-facing portrait.
+                </div>
             )}
-          </>
-        )}
-        
-        {(status === 'uploading' || status === 'generating') && (
-          <div className="text-center p-12">
-            <div className="animate-pulse rounded-lg bg-purple-500/20 h-4 w-full mx-auto mb-4"></div>
-            <p className="text-lg font-medium text-gray-300">
-              {status === 'uploading' ? 'Uploading Image to Server...' : 'Generating 4 Parallel Identities...'}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-               — Finalizing Photorealism Pipeline — 
-            </p>
-          </div>
-        )}
+            
+            {/* Dosya Yükleme Alanı */}
+            {(status === 'idle' || status === 'error' ) && (
+            <>
+                <label htmlFor="file-upload" className="block w-full aspect-video border-2 border-dashed border-gray-700 hover:border-gray-500 rounded-xl transition-all cursor-pointer flex flex-col items-center justify-center group/upload">
+                <div className="w-16 h-16 mb-4 rounded-full bg-gray-800 flex items-center justify-center group-hover/upload:bg-gray-700 transition">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                </div>
+                <span className="text-base text-gray-300 font-medium mb-2">Upload Source Portrait</span>
+                <span className="text-xs text-gray-500 uppercase tracking-wider">High-Res JPG/PNG Only</span>
+                <input 
+                    id="file-upload" 
+                    type="file" 
+                    accept="image/jpeg,image/png" 
+                    onChange={handleFileChange} 
+                    className="hidden" 
+                />
+                </label>
+                
+                {file && (
+                <div className="mt-4 flex items-center justify-between p-3 bg-gray-900 rounded-lg border border-gray-800">
+                    <span className="text-sm text-gray-300 truncate max-w-[200px]">{file.name}</span>
+                    <span className="text-xs text-green-500 font-bold tracking-wider">READY</span>
+                </div>
+                )}
+            </>
+            )}
+            
+            {/* Yükleme Animasyonu */}
+            {(status === 'uploading' || status === 'generating') && (
+            <div className="py-12 text-center">
+                <div className="w-full max-w-[200px] h-1 bg-gray-800 rounded-full mx-auto overflow-hidden mb-6">
+                    <div className="h-full bg-white animate-[loading_1.5s_ease-in-out_infinite]"></div>
+                </div>
+                <p className="text-lg font-medium text-white mb-2 animate-pulse">
+                {status === 'uploading' ? 'Encrypting & Uploading...' : 'Synthesizing Identities...'}
+                </p>
+                <p className="text-xs text-gray-500 uppercase tracking-widest font-mono">
+                {status === 'uploading' ? 'Secure Handshake Protocol' : 'Neural Network Active'}
+                </p>
+            </div>
+            )}
 
-        {status !== 'done' && (
-          <button 
-            type="submit" 
-            disabled={!file || status !== 'idle'}
-            className="w-full py-4 rounded-xl font-bold text-xl transition duration-300 
-            bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 
-            disabled:from-gray-700 disabled:to-gray-600 disabled:text-gray-400"
-          >
-            {status === 'idle' ? 'START GENERATION' : 'PLEASE WAIT...'}
-          </button>
-        )}
+            {/* Buton */}
+            {status !== 'done' && (
+            <button 
+                type="submit" 
+                disabled={!file || status !== 'idle'}
+                className="w-full mt-6 py-4 rounded-xl font-bold text-sm tracking-widest uppercase transition-all duration-300 
+                bg-white text-black hover:bg-gray-200 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed shadow-lg hover:shadow-white/10"
+            >
+                {status === 'idle' ? 'Generate Elite Portfolio' : 'Processing...'}
+            </button>
+            )}
+        </div>
       </form>
       
+      {/* SONUÇ EKRANI: Premium Galeri */}
       {status === 'done' && (
-        <div className="w-full max-w-4xl mt-10 text-center">
-          <h2 className="text-3xl font-bold text-green-400 mb-6">
-            TRANSFORMATION COMPLETE!
-          </h2>
+        <div className="w-full max-w-5xl mt-16 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+          <div className="flex items-center justify-between mb-8 border-b border-gray-800 pb-4">
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              Session Complete
+            </h2>
+            <span className="text-xs font-mono text-green-500">ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+          </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {results.map((url, index) => (
-              <div key={index} className="relative aspect-square rounded-xl overflow-hidden shadow-xl hover:shadow-purple-500/50 transition">
-                <img src={url} alt={`Identity ${index + 1}`} className="object-cover w-full h-full" />
+              <div key={index} className="group relative aspect-[3/4] rounded-xl overflow-hidden bg-gray-800 border border-gray-800 shadow-2xl transition hover:scale-[1.02] duration-300">
+                <img src={url} alt={`Identity ${index + 1}`} className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="text-xs font-medium text-white">Variation 0{index+1}</span>
+                </div>
               </div>
             ))}
           </div>
           
-          <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              className="w-full py-3 rounded-xl font-bold text-lg transition duration-300 bg-pink-600 text-white hover:bg-pink-700"
+              className="px-8 py-4 rounded-xl font-bold text-sm tracking-widest uppercase bg-white text-black hover:bg-gray-200 transition shadow-[0_0_40px_rgba(255,255,255,0.1)]"
             >
-              🔒 Enter Email to Unlock 4K Images 🔒
+              Unlock 4K Masters
             </button>
             
             <button 
-              className="w-full py-3 rounded-xl font-bold text-lg transition duration-300 bg-yellow-500 text-black hover:bg-yellow-600"
+              className="px-8 py-4 rounded-xl font-bold text-sm tracking-widest uppercase bg-gray-900 text-white border border-gray-700 hover:bg-gray-800 transition"
             >
-              ▶️ Play TikTok Video Slideshow (coming soon)
+              Share to TikTok
             </button>
           </div>
         </div>
