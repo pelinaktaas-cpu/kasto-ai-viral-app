@@ -3,32 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-// Firebase imports for Auth and Firestore (Required for professional apps)
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, User } from 'firebase/auth';
-import { getFirestore, doc, setDoc, collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-// Global Firebase setup variables
 declare const __app_id: string;
 declare const __firebase_config: string;
 declare const __initial_auth_token: string;
 
-// Initialize Firebase client
-let db: any = null;
-let auth: any = null;
-let appId: string = 'default-app-id'; 
 
-try {
-  appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-  const firebaseConfig = JSON.parse(__firebase_config);
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-} catch (e) {
-  console.error("Firebase Initialization Error:", e);
-}
-
-// 6 Ana Kategori
 const STYLES = [
   { name: 'Corporate Power', promptId: 0, description: 'CEO, Billionaire, Executive Portraits (12 Variants)' },
   { name: 'High Fashion', promptId: 1, description: 'Runway, Avant-garde, Editorial, Street Style (12 Variants)' },
@@ -45,36 +28,54 @@ export default function Home() {
   const [results, setResults] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [appDb, setAppDb] = useState<any>(null); 
+  const [appAuth, setAppAuth] = useState<any>(null); 
+  const [appId, setAppId] = useState<string>('default-app-id'); 
 
   const processedCount = '15K+'; 
   const userId = user?.uid || 'guest-user';
   
-  // 1. Firebase Auth Initialization and Listener
   useEffect(() => {
-    if (!auth) return;
+    let currentDb: any = null;
+    let currentAuth: any = null;
+    let currentAppId: string = 'default-app-id';
 
+    try {
+        currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        currentDb = getFirestore(app);
+        currentAuth = getAuth(app);
+        setAppDb(currentDb);
+        setAppAuth(currentAuth);
+        setAppId(currentAppId);
+    } catch (e) {
+        console.error("Firebase Initialization Error:", e);
+        return; 
+    }
+    
     const authenticate = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined') {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
+        try {
+            if (typeof __initial_auth_token !== 'undefined') {
+                await signInWithCustomToken(currentAuth, __initial_auth_token);
+            } else {
+                await signInAnonymously(currentAuth);
+            }
+        } catch (error) {
+            console.error("Firebase Sign-In Error:", error);
         }
-      } catch (error) {
-        console.error("Firebase Sign-In Error:", error);
-      }
     };
     
     authenticate();
     
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        console.log("Authenticated User ID:", currentUser.uid);
-      }
+    const unsubscribe = onAuthStateChanged(currentAuth, (currentUser) => {
+        setUser(currentUser);
+        if (currentUser) {
+            console.log("Authenticated User ID:", currentUser.uid);
+        }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); 
   }, []); 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +106,6 @@ export default function Home() {
 
         setStatus('generating');
 
-        // API'ya sadece Base64 fotoğrafı ve seçilen styleIndex'i gönderiyoruz
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -123,9 +123,8 @@ export default function Home() {
             setResults(data.urls);
             setStatus('done');
             
-            // Firestore'a sonucu kaydet
-            if (db && user) {
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/portfolios`, Date.now().toString());
+            if (appDb && user) {
+                const docRef = doc(appDb, `artifacts/${appId}/users/${userId}/portfolios`, Date.now().toString());
                 await setDoc(docRef, {
                     urls: data.urls,
                     style: STYLES[selectedStyle].name,
@@ -293,4 +292,3 @@ export default function Home() {
       )}
     </main>
   );
-}
