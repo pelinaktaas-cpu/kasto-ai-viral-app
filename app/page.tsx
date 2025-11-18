@@ -35,6 +35,8 @@ export default function Home() {
     try {
         const imageBase64 = await fileToBase64(file);
 
+        setStatus('generating');
+
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: {
@@ -67,30 +69,30 @@ export default function Home() {
     <main className="min-h-screen p-4 flex flex-col items-center justify-center bg-[#0d0d0d]">
       
       <div className="text-center mb-8">
-        <div className="text-sm font-semibold text-gray-500 mb-1">
-          {processedCount} photos processed in 24 hours! (Ücretsiz slotlar tükeniyor!)
+        <div className="text-sm font-light text-gray-500 mb-1 tracking-widest uppercase">
+          {processedCount} photos processed in 24 hours | Beta Slots Tüketiyor
         </div>
-        <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">
+        <h1 className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400 mb-2">
           KASTO.AI
         </h1>
-        <p className="text-xl text-gray-300">
-          Unlock your 4 Parallel Identities.
+        <p className="text-xl font-light text-gray-400">
+          The Premier AI Photoshoot Generator.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-lg bg-[#1a1a1a] p-8 rounded-xl shadow-2xl border border-purple-500/20">
+      <form onSubmit={handleSubmit} className="w-full max-w-lg bg-gray-900 p-8 rounded-2xl shadow-[0_0_60px_rgba(100,0,255,0.1)] border border-gray-700">
         
         {status === 'error' && (
              <div className="text-center p-4 bg-red-800/30 text-red-400 rounded-lg mb-4">
-               Generation failed. Please try a different photo.
+               Generation failed. Please ensure the uploaded photo is a clear, front-facing selfie.
              </div>
         )}
         
         {(status === 'idle' || status === 'error' ) && (
           <>
-            <label htmlFor="file-upload" className="block text-center cursor-pointer p-12 border-4 border-dashed border-pink-500/50 rounded-lg transition hover:border-pink-500/80 mb-6">
-              <span className="text-lg text-gray-400">
-                Tap to Upload Your Selfie (JPG/PNG)
+            <label htmlFor="file-upload" className="block text-center cursor-pointer p-16 border-4 border-dashed border-gray-600 rounded-xl transition hover:border-purple-500 mb-6">
+              <span className="text-lg text-gray-400 font-medium">
+                Drag or Tap to Upload Your High-Res Selfie (JPG/PNG)
               </span>
               <input 
                 id="file-upload" 
@@ -110,12 +112,12 @@ export default function Home() {
         
         {(status === 'uploading' || status === 'generating') && (
           <div className="text-center p-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-            <p className="text-lg text-pink-400">
-              {status === 'uploading' ? 'Uploading...' : 'Hacking Identities...'}
+            <div className="animate-pulse rounded-lg bg-purple-500/20 h-4 w-full mx-auto mb-4"></div>
+            <p className="text-lg font-medium text-gray-300">
+              {status === 'uploading' ? 'Uploading Image to Server...' : 'Generating 4 Parallel Identities...'}
             </p>
-            <p className="text-sm text-gray-400 mt-2">
-               — Establishing quantum connection — 
+            <p className="text-sm text-gray-500 mt-2">
+               — Finalizing Photorealism Pipeline — 
             </p>
           </div>
         )}
@@ -124,23 +126,24 @@ export default function Home() {
           <button 
             type="submit" 
             disabled={!file || status !== 'idle'}
-            className="w-full py-3 rounded-lg font-bold text-lg transition duration-300 
-            bg-purple-600 text-white hover:bg-purple-700 disabled:bg-gray-700 disabled:text-gray-400"
+            className="w-full py-4 rounded-xl font-bold text-xl transition duration-300 
+            bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 
+            disabled:from-gray-700 disabled:to-gray-600 disabled:text-gray-400"
           >
-            {status === 'idle' ? 'GENERATE YOUR IDENTITIES' : 'PROCESSING...'}
+            {status === 'idle' ? 'START GENERATION' : 'PLEASE WAIT...'}
           </button>
         )}
       </form>
       
       {status === 'done' && (
-        <div className="w-full max-w-4xl mt-8 text-center">
+        <div className="w-full max-w-4xl mt-10 text-center">
           <h2 className="text-3xl font-bold text-green-400 mb-6">
             TRANSFORMATION COMPLETE!
           </h2>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {results.map((url, index) => (
-              <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-purple-500/50">
+              <div key={index} className="relative aspect-square rounded-xl overflow-hidden shadow-xl hover:shadow-purple-500/50 transition">
                 <img src={url} alt={`Identity ${index + 1}`} className="object-cover w-full h-full" />
               </div>
             ))}
@@ -148,13 +151,13 @@ export default function Home() {
           
           <div className="space-y-4">
             <button 
-              className="w-full py-3 rounded-lg font-bold text-lg bg-pink-600 text-white hover:bg-pink-700"
+              className="w-full py-3 rounded-xl font-bold text-lg transition duration-300 bg-pink-600 text-white hover:bg-pink-700"
             >
               🔒 Enter Email to Unlock 4K Images 🔒
             </button>
             
             <button 
-              className="w-full py-3 rounded-lg font-bold text-lg bg-yellow-500 text-black hover:bg-yellow-600"
+              className="w-full py-3 rounded-xl font-bold text-lg transition duration-300 bg-yellow-500 text-black hover:bg-yellow-600"
             >
               ▶️ Play TikTok Video Slideshow (coming soon)
             </button>
