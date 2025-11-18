@@ -1,18 +1,33 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Bu ayar, Next.js'in external (dış) paketleri derleme sırasında Node.js modülü olarak tanımasını sağlar.
-  // Bu, özellikle Firebase ve Replicate kütüphaneleri için kritik öneme sahiptir.
-  // "undici/lib/web/fetch/util.js" hatası dahil tüm Node.js modül hatalarını çözer.
+  // 1. External paketleri sunucu bileşenleri için etkinleştiriyoruz (Firebase/Replicate için kritik)
   experimental: {
     serverComponentsExternalPackages: ['replicate', 'firebase'],
   },
-
-  // Fallback ayarlarını kaldırıyoruz (çünkü bu yeni ayar hepsini kapsar)
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false, 
-    };
+  
+  // 2. Webpack ayarları: Derleme sırasında Node.js modüllerini görmezden gelmeyi zorluyoruz.
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        // Tüm olası Node.js modüllerini tarayıcı tarafında devre dışı bırakıyoruz.
+        fs: false, 
+        path: false,
+        os: false,
+        assert: false,
+        buffer: false,
+        stream: false,
+        util: false,
+        crypto: false,
+        process: false,
+        url: false,
+        tty: false,
+        http: false,
+        https: false,
+        zlib: false,
+        // undici/firebase hatalarını çözer
+        'undici/lib/web/fetch/util.js': false, 
+      };
+    }
     return config;
   },
 }
