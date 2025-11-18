@@ -1,12 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Bu ayar, Next.js'in external kütüphanelerle derleme yapmasını sağlar.
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
-        'fs': false,
-        'path': false,
-        'os': false,
+        // Bu modüllerin tarayıcıda olmadığını Next.js'e söylüyoruz (Client-side polyfills)
+        fs: false,
+        path: false,
+        os: false,
+        assert: false,
+        buffer: false,
+        stream: false,
+        util: false,
+        crypto: false,
+        process: false,
       };
     }
     return config;
