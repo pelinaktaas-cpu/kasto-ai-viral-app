@@ -1,10 +1,8 @@
 import Replicate from 'replicate';
 import { NextResponse } from 'next/server';
 
-// Replicate client'ı başlatıyoruz. Anahtarımız Vercel'den otomatik alınır.
 const replicate = new Replicate({});
 
-// 4 adet viral prompt'u belirliyoruz
 const styles = [
     "A photo of the person as a powerful CEO, luxury office background, sharp focus, cinematic lighting.",
     "A photo of the person as a high-fashion runway model, dynamic pose, aesthetic gallery background.",
@@ -13,7 +11,6 @@ const styles = [
 ];
 
 export async function POST(request: Request) {
-    // Client'tan Base64 formatındaki fotoğrafı alıyoruz
     const { imageBase64 } = await request.json();
 
     if (!imageBase64) {
@@ -21,14 +18,13 @@ export async function POST(request: Request) {
     }
 
     try {
-        // Tüm 4 stili paralel olarak üretmek için promise'ları oluşturuyoruz
         const generationPromises = styles.map((prompt) =>
             replicate.run(
                 "stability-ai/sdxl:39ed52f2a78a93bf4d825308d6c26f002cc305b38d2ceb161e2a86361a41e658", 
                 {
                     input: {
                         prompt: prompt,
-                        image: imageBase64, // Base64 fotoğrafı gönderiyoruz
+                        image: imageBase64,
                         num_outputs: 1,
                     },
                 }
@@ -37,8 +33,7 @@ export async function POST(request: Request) {
 
         const results = await Promise.all(generationPromises);
         
-        // TypeScript hatasını düzelten ve sadece URL (string) çıktısı aldığımızdan emin olan kod:
-        const outputUrls = results.flat().filter((url): url is string => typeof url === 'string');
+        const outputUrls = (results as unknown[]).flat().filter((url): url is string => typeof url === 'string');
 
         return NextResponse.json({ urls: outputUrls }, { status: 200 });
 
